@@ -1,0 +1,27 @@
+<app-header></app-header>
+
+<section class="page-shell">
+  <div class="section-heading">
+    <p class="eyebrow">Internship Programs</p>
+    <h1>Choose the program that matches your career goal</h1>
+    <p>Each internship is built to give you real exposure, mentorship, and hands-on implementation experience.</p>
+  </div>
+
+  <div class="program-grid">
+    <article class="program-card" *ngFor="let program of programs">
+      <div class="program-badge">{{ program.domain }}</div>
+      <h2>{{ program.title }}</h2>
+      <p>{{ program.description }}</p>
+      <div class="pill-list">
+        <span *ngFor="let item of program.learning">{{ item }}</span>
+      </div>
+      <ul class="program-meta">
+        <li><strong>Duration:</strong> {{ program.duration }}</li>
+        <li><strong>Mode:</strong> {{ program.mode }}</li>
+      </ul>
+      <button class="btn btn-primary" type="button" (click)="goToApply(program.domain)">Apply for this Program</button>
+    </article>
+  </div>
+</section>
+
+<app-footer></app-footer>

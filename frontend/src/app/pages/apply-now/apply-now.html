@@ -1,0 +1,108 @@
+<app-header></app-header>
+
+<section class="page-shell">
+  <div class="section-heading">
+    <p class="eyebrow">Apply Now</p>
+    <h1>Start your internship journey with Crescent Technosoft</h1>
+    <p>Fill in your details and submit your application. Our team will review it and get back to you soon.</p>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="applicationForm" (ngSubmit)="submitApplication()" novalidate>
+      <div class="form-grid">
+        <div class="form-section">
+          <h3>Personal Information</h3>
+          <label>
+            Full Name
+            <input formControlName="full_name" type="text" />
+          </label>
+          <label>
+            Email
+            <input formControlName="email" type="email" />
+          </label>
+          <label>
+            Mobile Number
+            <input formControlName="mobile" type="tel" />
+          </label>
+        </div>
+
+        <div class="form-section">
+          <h3>Academic Information</h3>
+          <label>
+            College Name
+            <input formControlName="college_name" type="text" />
+          </label>
+          <label>
+            Department
+            <input formControlName="department" type="text" />
+          </label>
+          <label>
+            Current Year
+            <input formControlName="current_year" type="text" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-section">
+          <h3>Internship Information</h3>
+          <label>
+            Internship Domain
+            <select formControlName="internship_domain">
+              <option value="">Select a domain</option>
+              <option value="Web Development">Web Development</option>
+              <option value="Artificial Intelligence">Artificial Intelligence</option>
+            </select>
+          </label>
+          <label>
+            Internship Mode
+            <select formControlName="internship_mode">
+              <option value="Hybrid">Hybrid</option>
+              <option value="Online">Online</option>
+              <option value="Offline">Offline</option>
+            </select>
+          </label>
+          <label>
+            Preferred Start Date
+            <input formControlName="preferred_start_date" type="date" />
+          </label>
+        </div>
+
+        <div class="form-section">
+          <h3>Documents & Links</h3>
+          <label>
+            Resume (PDF only, max 5 MB)
+            <input type="file" accept="application/pdf" (change)="onFileSelected($event)" />
+          </label>
+          <label>
+            LinkedIn URL
+            <input formControlName="linkedin_url" type="url" />
+          </label>
+          <label>
+            GitHub URL
+            <input formControlName="github_url" type="url" />
+          </label>
+        </div>
+      </div>
+
+      <div class="form-section full-width">
+        <h3>Additional Information</h3>
+        <label>
+          Why do you want to join this internship?
+          <textarea formControlName="motivation" rows="5"></textarea>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Submitting...' : 'Submit Application' }}
+        </button>
+      </div>
+
+      <p class="status success" *ngIf="successMessage">{{ successMessage }}</p>
+      <p class="status error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </form>
+  </div>
+</section>
+
+<app-footer></app-footer>
