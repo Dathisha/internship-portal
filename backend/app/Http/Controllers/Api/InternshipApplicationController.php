@@ -54,7 +54,10 @@ class InternshipApplicationController extends Controller
                 ]);
             }
         } catch (\Throwable $exception) {
-            dd($exception->getMessage());
+            Log::error('Internship application email failed to send.', [
+                'application_id' => $application->application_id,
+                'error' => $exception->getMessage(),
+            ]);
         }
 
         return response()->json([

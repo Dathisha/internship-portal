@@ -1,32 +1,32 @@
 <app-header></app-header>
 
 <section class="hero">
+  <div #heroSlider class="swiper hero-slider" aria-label="Internship technology highlights">
+    <div class="swiper-wrapper">
+      <div *ngFor="let image of heroImages; let index = index" class="swiper-slide hero-slide">
+        <img [src]="image.src" [alt]="image.alt" [loading]="index === 0 ? 'eager' : 'lazy'" />
+      </div>
+    </div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-glow hero-glow-one"></div>
+  <div class="hero-glow hero-glow-two"></div>
   <div class="hero-content">
     <div class="hero-branding">
       <p class="eyebrow">CRESCENT TECHNOSOFT • INTERN 2 EXPERT</p>
+      <span class="hero-kicker">NEXT-GENERATION LEARNING LAB</span>
     </div>
-    <h1>Launch your tech career with premium internship training.</h1>
-    <p class="hero-copy">Gain hands-on experience in modern web, AI, and product-driven development through guided internships designed for ambitious college students.</p>
+    <h1>Launch Your Career in Web Development &amp; AI</h1>
+    <p class="hero-copy">Learn Angular, Laravel, Python, AI, REST APIs, and build real-time industry projects with expert mentors.</p>
     <div class="hero-actions">
-      <a class="btn btn-primary" routerLink="/internship-programs">Explore Programs</a>
-      <a class="btn btn-secondary" routerLink="/apply">Apply Now</a>
-    </div>
-    <div class="hero-stats">
-      <div><strong>6+</strong><span>Weeks</span></div>
-      <div><strong>100%</strong><span>Practical</span></div>
-      <div><strong>Hybrid</strong><span>Mode</span></div>
+      <a class="btn btn-primary" routerLink="/apply">Apply Now</a>
+      <a class="btn btn-secondary" routerLink="/internship-programs">Explore Program</a>
     </div>
   </div>
-  <div class="hero-card">
-    <p class="hero-card-label">What you will experience</p>
-    <h3>Real internships. Real growth.</h3>
-    <ul>
-      <li>Industry-oriented learning</li>
-      <li>Live project execution</li>
-      <li>Mentorship and feedback</li>
-      <li>Career-ready portfolio</li>
-    </ul>
-    <a class="text-link" routerLink="/apply">Begin your application</a>
+  <div class="hero-nav">
+    <button #heroPrevious class="hero-arrow" type="button" aria-label="Previous slide">&#8592;</button>
+    <div #heroPagination class="hero-pagination"></div>
+    <button #heroNext class="hero-arrow" type="button" aria-label="Next slide">&#8594;</button>
   </div>
 </section>
 
