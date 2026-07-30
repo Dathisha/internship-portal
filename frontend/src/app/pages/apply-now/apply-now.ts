@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../../shared/components/header/header';
@@ -14,6 +14,8 @@ import { InternshipApplicationService } from '../../core/services/internship-app
   styleUrl: './apply-now.css',
 })
 export class ApplyNowComponent implements OnInit {
+  @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
+
   applicationForm: FormGroup;
   isSubmitting = false;
   successMessage = '';
@@ -56,8 +58,14 @@ export class ApplyNowComponent implements OnInit {
       return;
     }
 
-    if (file.type !== 'application/pdf') {
-      this.errorMessage = 'Resume must be a PDF file.';
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      this.errorMessage = 'Resume must be a PDF, DOC, or DOCX file.';
       this.applicationForm.patchValue({ resume: null });
       return;
     }
@@ -95,14 +103,24 @@ export class ApplyNowComponent implements OnInit {
 
     this.isSubmitting = true;
     this.internshipService.submitApplication(formData).subscribe({
-      next: (response) => {
+      next: () => {
         this.isSubmitting = false;
-        this.successMessage = 'Application Submitted Successfully!';
+        this.successMessage = 'Application Submitted Successfully! We will review your application and get back to you.';
         this.applicationForm.reset({ internship_mode: 'Hybrid' });
+        // Clear the native file input so the control is truly reset
+        if (this.fileInputRef?.nativeElement) {
+          this.fileInputRef.nativeElement.value = '';
+        }
       },
-      error: () => {
+      error: (err) => {
         this.isSubmitting = false;
-        this.errorMessage = 'Unable to submit application right now. Please try again.';
+        if (err.status === 422 && err.error?.errors) {
+          // Show first specific backend validation error
+          const firstError = Object.values(err.error.errors as Record<string, string[]>)[0];
+          this.errorMessage = Array.isArray(firstError) ? firstError[0] : 'Please complete all required fields correctly.';
+        } else {
+          this.errorMessage = 'Unable to submit application right now. Please try again.';
+        }
       },
     });
   }

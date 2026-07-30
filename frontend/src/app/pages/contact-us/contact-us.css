@@ -1,0 +1,241 @@
+:host {
+  display: block;
+}
+
+.page-shell {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.section-heading {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 40px;
+}
+
+.section-heading .eyebrow {
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent, #7c3aed);
+}
+
+.section-heading h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 5vw, 2.75rem);
+  line-height: 1.1;
+  color: var(--nav, #1e1b4b);
+  font-weight: 800;
+}
+
+.section-heading p {
+  margin-top: 14px;
+  color: var(--muted, #64748b);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* Primary Company Info Grid (Company, Website, Phone) */
+.company-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
+.info-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid rgba(124, 58, 237, 0.16);
+  border-radius: 20px;
+  padding: 28px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.04);
+}
+
+.info-card:hover {
+  border-color: rgba(124, 58, 237, 0.35);
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px rgba(124, 58, 237, 0.12);
+}
+
+.icon-wrap {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(108, 76, 253, 0.22) 100%);
+  color: var(--accent, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-content h3 {
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--nav, #1e1b4b);
+}
+
+.company-name {
+  font-weight: 800;
+  color: var(--accent, #7c3aed);
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+}
+
+.detail-link a {
+  color: var(--accent, #7c3aed);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  transition: color 0.2s ease;
+  word-break: break-all;
+}
+
+.detail-link a:hover {
+  color: var(--primary, #5b21b6);
+  text-decoration: underline;
+}
+
+.detail-sub {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Office Locations Section */
+.offices-section {
+  background: linear-gradient(135deg, #f9f8ff 0%, #f3efff 100%);
+  border: 1px solid rgba(124, 58, 237, 0.16);
+  border-radius: 28px;
+  padding: 40px 32px;
+}
+
+.section-title-wrap {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.section-title-wrap h2 {
+  margin: 0 0 6px;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--nav, #1e1b4b);
+}
+
+.section-title-wrap p {
+  margin: 0;
+  color: var(--muted, #64748b);
+  font-size: 0.95rem;
+}
+
+.offices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.office-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  border-radius: 20px;
+  padding: 32px 28px;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.05);
+}
+
+.office-card:hover {
+  border-color: var(--accent, #7c3aed);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(124, 58, 237, 0.14);
+}
+
+.office-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+}
+
+.office-icon-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--accent, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.office-header h3 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--nav, #1e1b4b);
+}
+
+.office-badge {
+  display: inline-block;
+  background-color: #ede9fe;
+  color: #5b21b6;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.office-body .address-text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #334155;
+  font-weight: 500;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .page-shell {
+    padding: 24px 16px 40px;
+  }
+
+  .offices-section {
+    padding: 28px 20px;
+  }
+
+  .offices-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .company-info-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .info-card {
+    padding: 20px 16px;
+  }
+
+  .office-card {
+    padding: 24px 20px;
+  }
+
+  .section-heading h1 {
+    font-size: 1.85rem;
+  }
+}

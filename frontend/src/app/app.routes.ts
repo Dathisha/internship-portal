@@ -14,12 +14,20 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/apply-now/apply-now').then((m) => m.ApplyNowComponent),
   },
   {
-    path: 'privacy-policy',
-    loadComponent: () => import('./pages/privacy-policy/privacy-policy').then((m) => m.PrivacyPolicyComponent),
+    path: 'certificate-generator',
+    loadComponent: () => import('./pages/certificate-generator/certificate-generator').then((m) => m.CertificateGeneratorComponent),
   },
   {
-    path: 'terms',
-    loadComponent: () => import('./pages/terms/terms').then((m) => m.TermsComponent),
+    path: 'contact',
+    loadComponent: () => import('./pages/contact-us/contact-us').then((m) => m.ContactUsComponent),
+  },
+  {
+    path: 'admin/certificates',
+    loadComponent: () => import('./pages/admin-certificate-generator/admin-certificate-generator').then((m) => m.AdminCertificateGeneratorComponent),
+  },
+  {
+    path: 'verify-certificate/:id',
+    loadComponent: () => import('./pages/verify-certificate/verify-certificate').then((m) => m.VerifyCertificateComponent),
   },
   {
     path: '**',

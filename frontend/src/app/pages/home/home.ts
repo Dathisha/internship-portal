@@ -3,6 +3,9 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@ang
 import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../shared/components/header/header';
 import { FooterComponent } from '../../shared/components/footer/footer';
+import { StudentStatisticsComponent } from '../../shared/components/student-statistics/student-statistics';
+import { PartnerCollegesComponent } from '../../shared/components/partner-colleges/partner-colleges';
+import { ProgramsSectionComponent } from '../../shared/components/programs-section/programs-section';
 import Swiper from 'swiper';
 import { Autoplay, EffectFade, Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -13,7 +16,15 @@ import 'swiper/css/pagination';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, HeaderComponent, FooterComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    HeaderComponent,
+    FooterComponent,
+    StudentStatisticsComponent,
+    PartnerCollegesComponent,
+    ProgramsSectionComponent,
+  ],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -89,3 +100,4 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     this.heroSwiper?.destroy(true, true);
   }
 }
+

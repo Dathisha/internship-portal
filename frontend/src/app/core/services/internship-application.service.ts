@@ -7,10 +7,15 @@ import { InternshipApplicationResponse } from '../models/internship-application.
 @Injectable({ providedIn: 'root' })
 export class InternshipApplicationService {
   private readonly apiUrl = `${environment.apiUrl}/internship-applications`;
+  private readonly contactApiUrl = `${environment.apiUrl}/contact`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   submitApplication(formData: FormData): Observable<InternshipApplicationResponse> {
     return this.http.post<InternshipApplicationResponse>(this.apiUrl, formData);
+  }
+
+  sendContactEmail(contactData: any): Observable<any> {
+    return this.http.post<any>(this.contactApiUrl, contactData);
   }
 }

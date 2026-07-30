@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+.partner-colleges-section {
+  padding: 95px 20px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F3FF 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.partner-colleges-section::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at bottom center, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.section-heading {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--primary, #6C4CFD);
+  background: rgba(108, 76, 253, 0.08);
+  border: 1px solid rgba(108, 76, 253, 0.16);
+  padding: 6px 16px;
+  border-radius: 999px;
+  margin: 0 0 16px 0;
+}
+
+.section-heading h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin: 0 0 14px 0;
+  color: #0F172A;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+}
+
+.subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.05rem;
+  color: #64748B;
+  margin: 0 auto;
+  max-width: 620px;
+  line-height: 1.6;
+}
+
+.colleges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.college-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  box-shadow: 0 10px 25px -5px rgba(108, 76, 253, 0.06), 0 4px 10px -2px rgba(15, 23, 42, 0.02);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.college-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #6C4CFD 0%, #8B5CF6 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.college-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(108, 76, 253, 0.35);
+  box-shadow: 0 20px 40px -5px rgba(108, 76, 253, 0.16), 0 8px 20px -4px rgba(124, 58, 237, 0.08);
+}
+
+.college-card:hover::before {
+  opacity: 1;
+}
+
+.college-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(108, 76, 253, 0.1) 0%, rgba(124, 58, 237, 0.04) 100%);
+  border: 1px solid rgba(108, 76, 253, 0.14);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 18px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
+}
+
+.college-card:hover .college-icon {
+  transform: scale(1.1) rotate(4deg);
+  background: linear-gradient(135deg, rgba(108, 76, 253, 0.16) 0%, rgba(124, 58, 237, 0.08) 100%);
+}
+
+.college-card h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin: 0;
+  color: #0F172A;
+  line-height: 1.45;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .colleges-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .partner-colleges-section {
+    padding: 60px 16px;
+  }
+
+  .section-heading {
+    margin-bottom: 36px;
+  }
+
+  .colleges-grid {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 16px;
+  }
+
+  .college-card {
+    padding: 24px 20px;
+    border-radius: 18px;
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 16px;
+  }
+
+  .college-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+    border-radius: 12px;
+  }
+
+  .college-card h3 {
+    font-size: 0.92rem;
+  }
+}

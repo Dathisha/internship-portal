@@ -23,7 +23,7 @@ class StoreInternshipApplicationRequest extends FormRequest
             'internship_domain' => 'required|string|max:100',
             'internship_mode' => 'required|string|max:100',
             'preferred_start_date' => 'required|date',
-            'resume' => 'required|file|mimes:pdf|max:5120',
+            'resume' => 'required|file|mimes:pdf,doc,docx|max:5120',
             'linkedin_url' => 'nullable|url|max:255',
             'github_url' => 'nullable|url|max:255',
             'motivation' => 'required|string|min:20',

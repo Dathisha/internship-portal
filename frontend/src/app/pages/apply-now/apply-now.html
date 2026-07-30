@@ -71,8 +71,8 @@
         <div class="form-section">
           <h3>Documents & Links</h3>
           <label>
-            Resume (PDF only, max 5 MB)
-            <input type="file" accept="application/pdf" (change)="onFileSelected($event)" />
+            Resume (PDF/DOC/DOCX, max 5 MB)
+            <input #fileInput type="file" accept="application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" (change)="onFileSelected($event)" />
           </label>
           <label>
             LinkedIn URL

@@ -1,0 +1,16 @@
+<section class="partner-colleges-section">
+  <div class="section-container">
+    <div class="section-heading">
+      <p class="eyebrow">Our Community</p>
+      <h2>Our Students are from Leading Institutions</h2>
+      <p class="subtitle">Trusted by top engineering colleges across India</p>
+    </div>
+
+    <div class="colleges-grid">
+      <div *ngFor="let college of colleges" class="college-card" [style.--accent-color]="college.color">
+        <div class="college-icon">{{ college.icon }}</div>
+        <h3>{{ college.name }}</h3>
+      </div>
+    </div>
+  </div>
+</section>

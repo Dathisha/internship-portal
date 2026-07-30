@@ -1,0 +1,69 @@
+<app-header></app-header>
+
+<section class="page-shell">
+  <div class="section-heading">
+    <p class="eyebrow">Certificate Verification</p>
+    <h1>Verify Your Certificate</h1>
+    <p>Use the QR code or certificate ID to verify the authenticity of your internship certificate.</p>
+  </div>
+
+  <div class="verification-container" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <p>Verifying certificate...</p>
+    </div>
+  </div>
+
+  <div class="verification-container" *ngIf="!isLoading && isVerified && certificate">
+    <div class="verification-success">
+      <div class="success-icon">✓</div>
+      <h2>Certificate Verified</h2>
+      <p>This certificate is authentic and valid.</p>
+
+      <div class="certificate-details">
+        <div class="detail-item">
+          <label>Candidate Name:</label>
+          <p>{{ certificate.candidate_name }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Internship Domain:</label>
+          <p>{{ certificate.domain }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Duration:</label>
+          <p>{{ certificate.duration }} month(s)</p>
+        </div>
+        <div class="detail-item">
+          <label>Start Date:</label>
+          <p>{{ certificate.start_date }}</p>
+        </div>
+        <div class="detail-item">
+          <label>End Date:</label>
+          <p>{{ certificate.end_date }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Issue Date:</label>
+          <p>{{ certificate.issue_date }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Certificate ID:</label>
+          <p>{{ certificate.certificate_id }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Status:</label>
+          <p class="status-badge" [ngClass]="certificate.status">{{ certificate.status | uppercase }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verification-container" *ngIf="!isLoading && !isVerified && errorMessage">
+    <div class="verification-error">
+      <div class="error-icon">✗</div>
+      <h2>Certificate Not Found</h2>
+      <p>{{ errorMessage }}</p>
+      <p>Please check the certificate ID and try again.</p>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

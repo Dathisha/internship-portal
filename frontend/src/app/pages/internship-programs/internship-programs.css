@@ -5,7 +5,7 @@
 .page-shell {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 28px 20px 32px;
+  padding: 36px 20px 48px;
 }
 
 .section-heading h1 {
@@ -23,9 +23,10 @@
 
 .program-grid {
   display: grid;
-  gap: 18px;
+  gap: 28px;
   grid-template-columns: 1fr;
-  margin-top: 24px;
+  margin-top: 32px;
+  align-items: stretch;
 }
 
 .program-card {
@@ -33,11 +34,11 @@
   border-radius: 24px;
   border: 1px solid rgba(124, 58, 237, 0.14);
   box-shadow: var(--shadow);
-  padding: 24px;
+  padding: 36px 32px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  height: 100%;
 }
 
 .program-card:hover {
@@ -48,73 +49,93 @@
 .program-badge {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   background: rgba(124, 58, 237, 0.12);
   color: var(--primary);
   border-radius: 999px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
+  padding: 8px 16px;
+  font-size: 0.88rem;
   font-weight: 700;
+  margin-bottom: 16px;
 }
 
 .program-card h2 {
   color: var(--text);
-  margin: 0;
+  margin: 0 0 12px 0;
   font-size: 1.55rem;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .program-card p {
   color: var(--muted);
-  margin: 0;
-  line-height: 1.75;
+  margin: 0 0 16px 0;
+  line-height: 1.7;
 }
 
 .pill-list {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 8px 0 0;
+  margin: 0 0 20px 0;
 }
 
 .pill-list span {
   background: var(--surface-2);
   color: var(--primary);
   border-radius: 999px;
-  padding: 10px 14px;
-  font-size: 0.92rem;
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
 .program-meta {
-  margin: 0;
+  margin: 0 0 24px 0;
   color: var(--muted);
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   list-style: none;
   padding-left: 0;
+  flex-grow: 1; /* Pushes the button to the bottom of the card */
 }
 
 .program-meta li {
   margin-bottom: 8px;
 }
 
+.program-meta li:last-child {
+  margin-bottom: 0;
+}
+
 .btn {
   width: fit-content;
-  padding: 12px 18px;
+  align-self: flex-start;
+  flex-shrink: 0;
+  margin-top: auto; /* Pins the button at the bottom across all cards */
+  padding: 12px 24px;
   border-radius: 999px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 @media (min-width: 900px) {
   .program-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
   }
 }
 
 @media (max-width: 540px) {
   .page-shell {
-    padding: 24px 18px 28px;
+    padding: 24px 16px 32px;
   }
 
   .program-card {
-    padding: 20px;
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
   }
 }

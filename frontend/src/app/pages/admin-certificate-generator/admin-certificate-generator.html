@@ -1,0 +1,132 @@
+<app-header></app-header>
+
+<section class="page-shell">
+  <div class="section-heading">
+    <p class="eyebrow">Admin Panel</p>
+    <h1>AI Certificate Generator</h1>
+    <p>Generate professional internship certificates for approved candidates with auto-filled details.</p>
+  </div>
+
+  <div class="container">
+    <!-- Candidate Selection Form -->
+    <div class="form-card">
+      <h2>Step 1: Select Candidate</h2>
+      <form [formGroup]="certificateForm" (ngSubmit)="generatePreview()" novalidate>
+        <div class="form-group">
+          <label for="candidateId">
+            Select Approved Candidate
+            <span class="required">*</span>
+          </label>
+          <select
+            id="candidateId"
+            formControlName="candidateId"
+            (change)="onCandidateSelect($any($event.target).value)"
+            [disabled]="isLoading"
+          >
+            <option value="">-- Select a candidate --</option>
+            <option *ngFor="let candidate of candidates" [value]="candidate.id">
+              {{ candidate.full_name }} - {{ candidate.internship_domain }}
+            </option>
+          </select>
+          <div class="error-message" *ngIf="certificateForm.get('candidateId')?.invalid && certificateForm.get('candidateId')?.touched">
+            Please select a candidate
+          </div>
+        </div>
+
+        <!-- Selected Candidate Details -->
+        <div class="candidate-details" *ngIf="selectedCandidate">
+          <h3>Candidate Information</h3>
+          <div class="details-grid">
+            <div class="detail-item">
+              <label>Name:</label>
+              <p>{{ selectedCandidate.full_name }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Email:</label>
+              <p>{{ selectedCandidate.email }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Domain:</label>
+              <p>{{ selectedCandidate.internship_domain }}</p>
+            </div>
+            <div class="detail-item">
+              <label>College:</label>
+              <p>{{ selectedCandidate.college_name }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Start Date:</label>
+              <p>{{ selectedCandidate.preferred_start_date }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="duration">
+            Internship Duration (months)
+            <span class="required">*</span>
+          </label>
+          <input
+            id="duration"
+            type="number"
+            formControlName="duration"
+            min="1"
+            max="12"
+            placeholder="e.g., 3"
+          />
+          <div class="error-message" *ngIf="certificateForm.get('duration')?.invalid && certificateForm.get('duration')?.touched">
+            Please enter a valid duration
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">
+            End Date
+            <span class="required">*</span>
+          </label>
+          <input id="endDate" type="date" formControlName="endDate" />
+          <div class="error-message" *ngIf="certificateForm.get('endDate')?.invalid && certificateForm.get('endDate')?.touched">
+            Please select an end date
+          </div>
+        </div>
+
+        <div class="form-messages">
+          <div class="success-message" *ngIf="successMessage">✓ {{ successMessage }}</div>
+          <div class="success-message" *ngIf="emailSentMessage">✉ {{ emailSentMessage }}</div>
+          <div class="error-message" *ngIf="errorMessage">✗ {{ errorMessage }}</div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading || certificateForm.invalid">
+            {{ isLoading ? 'Generating...' : 'Generate Preview' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Certificate Preview -->
+    <div *ngIf="showPreview && previewUrl" class="preview-section">
+      <h2>Step 2: Preview & Download</h2>
+
+      <div class="preview-container">
+        <iframe [src]="previewUrl | safe" class="certificate-preview"></iframe>
+      </div>
+
+      <div class="preview-actions">
+        <button class="btn btn-primary" (click)="saveCertificate()" [disabled]="isSaving || !!savedCertificateId">
+          {{ isSaving ? 'Saving...' : savedCertificateId ? 'Saved ✓' : 'Save Certificate' }}
+        </button>
+        <button
+          class="btn btn-success"
+          (click)="sendCertificateEmail()"
+          [disabled]="isSendingEmail || !savedCertificateId"
+          *ngIf="savedCertificateId">
+          {{ isSendingEmail ? 'Sending...' : '✉ Send Certificate Email to Student' }}
+        </button>
+        <button class="btn btn-secondary" (click)="downloadPDF()">Download PDF</button>
+        <button class="btn btn-tertiary" (click)="printCertificate()">Print Certificate</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>
