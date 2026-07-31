@@ -69,31 +69,38 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       image.src = src;
     });
 
-    this.heroSwiper = new Swiper(this.heroSlider.nativeElement, {
-      modules: [Autoplay, EffectFade, Navigation, Pagination],
-      autoplay: {
-        delay: 3500,
-        disableOnInteraction: false,
-        waitForTransition: false,
-      },
-      effect: 'fade',
-      fadeEffect: { crossFade: true },
-      loop: true,
-      observer: true,
-      observeParents: true,
-      slidesPerGroup: 1,
-      slidesPerView: 1,
-      navigation: {
-        nextEl: this.heroNext.nativeElement,
-        prevEl: this.heroPrevious.nativeElement,
-      },
-      pagination: {
-        clickable: true,
-        el: this.heroPagination.nativeElement,
-      },
-      speed: 1100,
-    });
-    this.heroSwiper.autoplay.start();
+    setTimeout(() => {
+      if (!this.heroSlider?.nativeElement) {
+        return;
+      }
+      this.heroSwiper = new Swiper(this.heroSlider.nativeElement, {
+        modules: [Autoplay, EffectFade, Navigation, Pagination],
+        autoplay: {
+          delay: 3500,
+          disableOnInteraction: false,
+          waitForTransition: false,
+        },
+        effect: 'fade',
+        fadeEffect: { crossFade: true },
+        loop: true,
+        observer: true,
+        observeParents: true,
+        resizeObserver: true,
+        updateOnWindowResize: true,
+        slidesPerGroup: 1,
+        slidesPerView: 1,
+        navigation: {
+          nextEl: this.heroNext.nativeElement,
+          prevEl: this.heroPrevious.nativeElement,
+        },
+        pagination: {
+          clickable: true,
+          el: this.heroPagination.nativeElement,
+        },
+        speed: 1100,
+      });
+      this.heroSwiper.autoplay.start();
+    }, 0);
   }
 
   ngOnDestroy(): void {

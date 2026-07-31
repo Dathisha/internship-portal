@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, NgZone, ViewChild, inject } from '@angular/core';
 
 interface Statistic {
   value: number;
@@ -15,54 +15,56 @@ interface Statistic {
   templateUrl: './student-statistics.html',
   styleUrl: './student-statistics.css',
 })
-export class StudentStatisticsComponent implements OnInit {
+export class StudentStatisticsComponent implements AfterViewInit {
   @ViewChild('statsSection', { static: false }) statsSection!: ElementRef;
+
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
 
   statistics: Statistic[] = [
     {
-      value: 500,
-      label: 'Students Completed',
+      value: 600,
+      label: 'Students',
       icon: '👥',
-      displayValue: 0,
+      displayValue: 600,
     },
     {
       value: 100,
       label: 'Real-Time Projects',
       icon: '💼',
-      displayValue: 0,
+      displayValue: 100,
     },
     {
-      value: 95,
-      label: 'Industry Mentors',
+      value: 20,
+      label: 'Mentors',
       icon: '🎓',
-      displayValue: 0,
-    },
-    {
-      value: 100,
-      label: 'Placement Training',
-      icon: '🚀',
-      displayValue: 0,
+      displayValue: 20,
     },
   ];
 
   private hasAnimated = false;
 
-  ngOnInit(): void {
-    if (typeof IntersectionObserver !== 'undefined') {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !this.hasAnimated) {
-            this.hasAnimated = true;
-            this.animateCounters();
-          }
-        });
-      });
+  ngAfterViewInit(): void {
+    if (typeof window !== 'undefined' && typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !this.hasAnimated) {
+              this.hasAnimated = true;
+              this.ngZone.run(() => {
+                this.animateCounters();
+              });
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
 
-      setTimeout(() => {
-        if (this.statsSection) {
-          observer.observe(this.statsSection.nativeElement);
-        }
-      }, 100);
+      if (this.statsSection?.nativeElement) {
+        observer.observe(this.statsSection.nativeElement);
+      } else {
+        this.animateCounters();
+      }
     } else {
       this.animateCounters();
     }
@@ -70,7 +72,11 @@ export class StudentStatisticsComponent implements OnInit {
 
   private animateCounters(): void {
     this.statistics.forEach((stat) => {
-      const increment = stat.value / 30;
+      stat.displayValue = 0;
+      const duration = 1000;
+      const steps = 30;
+      const increment = stat.value / steps;
+      const stepTime = duration / steps;
       let current = 0;
 
       const interval = setInterval(() => {
@@ -81,7 +87,8 @@ export class StudentStatisticsComponent implements OnInit {
         } else {
           stat.displayValue = Math.floor(current);
         }
-      }, 30);
+        this.cdr.detectChanges();
+      }, stepTime);
     });
   }
 }

@@ -63,6 +63,19 @@
             </select>
           </label>
           <label>
+            Internship Duration (Months)
+            <input
+              formControlName="duration"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="Enter internship duration in months"
+            />
+            <small *ngIf="applicationForm.get('duration')?.invalid && applicationForm.get('duration')?.touched">
+              Please enter a valid internship duration in months (minimum 1).
+            </small>
+          </label>
+          <label>
             Preferred Start Date
             <input formControlName="preferred_start_date" type="date" />
           </label>
@@ -72,7 +85,9 @@
           <h3>Documents & Links</h3>
           <label>
             Resume (PDF/DOC/DOCX, max 5 MB)
-            <input #fileInput type="file" accept="application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" (change)="onFileSelected($event)" />
+            <input #fileInput type="file"
+              accept="application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              (change)="onFileSelected($event)" />
           </label>
           <label>
             LinkedIn URL

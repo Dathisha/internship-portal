@@ -35,6 +35,7 @@ export class ApplyNowComponent implements OnInit {
       current_year: ['', [Validators.required, Validators.maxLength(50)]],
       internship_domain: ['', Validators.required],
       internship_mode: ['Hybrid', Validators.required],
+      duration: ['', [Validators.required, Validators.min(1), Validators.pattern(/^[1-9]\d*$/)]],
       preferred_start_date: ['', Validators.required],
       resume: [null, [Validators.required]],
       linkedin_url: ['', [Validators.pattern(/https?:\/\/.+/)]],
@@ -114,12 +115,14 @@ export class ApplyNowComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmitting = false;
+        console.error('Application submission error:', err);
         if (err.status === 422 && err.error?.errors) {
-          // Show first specific backend validation error
           const firstError = Object.values(err.error.errors as Record<string, string[]>)[0];
           this.errorMessage = Array.isArray(firstError) ? firstError[0] : 'Please complete all required fields correctly.';
+        } else if (err.error?.message) {
+          this.errorMessage = err.error.message;
         } else {
-          this.errorMessage = 'Unable to submit application right now. Please try again.';
+          this.errorMessage = 'Unable to submit application right now. Please check your connection and ensure your resume is a PDF/DOC/DOCX under 5 MB.';
         }
       },
     });

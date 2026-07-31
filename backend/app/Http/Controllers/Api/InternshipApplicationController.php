@@ -115,88 +115,124 @@ class InternshipApplicationController extends Controller
 
     public function store(StoreInternshipApplicationRequest $request)
     {
-        $validated = $request->validated();
+        $startTime = microtime(true);
 
-        // ── 1. Store resume file ──────────────────────────────────────────
-        $resumeFile         = $request->file('resume');
-        $resumePath         = $resumeFile->store('resumes', 'local');
-        $resumeOriginalName = $resumeFile->getClientOriginalName();
-        $resumeSizeKb       = $resumeFile->getSize() ? round($resumeFile->getSize() / 1024, 2) : null;
-
-        // ── 2. Create DB record ───────────────────────────────────────────
-        $application = InternshipApplication::create([
-            'application_id'       => $this->generateUniqueApplicationId(),
-            'full_name'            => $validated['full_name'],
-            'email'                => $validated['email'],
-            'mobile'               => $validated['mobile'],
-            'college_name'         => $validated['college_name'],
-            'department'           => $validated['department'],
-            'current_year'         => $validated['current_year'],
-            'internship_domain'    => $validated['internship_domain'],
-            'internship_mode'      => $validated['internship_mode'],
-            'preferred_start_date' => $validated['preferred_start_date'],
-            'resume_path'          => $resumePath,
-            'linkedin_url'         => $validated['linkedin_url'] ?? null,
-            'github_url'           => $validated['github_url'] ?? null,
-            'motivation'           => $validated['motivation'],
-            'status'               => 'Pending',
-        ]);
-
-        // ── 3. Send email to HR & log action ─────────────────────────────
-        $recipient = config('mail.to') ?: 'intern2expert.portal@gmail.com';
         try {
-            $appUrl = env('APP_URL') ?: config('app.url');
-            if ($appUrl && str_starts_with($appUrl, 'http')) {
-                URL::forceRootUrl($appUrl);
-                if (str_starts_with($appUrl, 'https://')) {
-                    URL::forceScheme('https');
-                }
+            $validated = $request->validated();
+
+            // ── 1. Store uploaded resume file ────────────────────────────────
+            $resumeFile         = $request->file('resume');
+            $resumePath         = $resumeFile->store('resumes', 'local');
+            $resumeOriginalName = $resumeFile->getClientOriginalName();
+            $resumeSizeKb       = $resumeFile->getSize() ? round($resumeFile->getSize() / 1024, 2) : null;
+
+            // ── 2. Create DB record ───────────────────────────────────────────
+            $applicationId = $this->generateUniqueApplicationId();
+            $application = InternshipApplication::create([
+                'application_id'       => $applicationId,
+                'full_name'            => $validated['full_name'],
+                'email'                => $validated['email'],
+                'mobile'               => $validated['mobile'],
+                'college_name'         => $validated['college_name'],
+                'department'           => $validated['department'],
+                'current_year'         => $validated['current_year'],
+                'internship_domain'    => $validated['internship_domain'],
+                'internship_mode'      => $validated['internship_mode'],
+                'duration'             => (int) $validated['duration'],
+                'preferred_start_date' => $validated['preferred_start_date'],
+                'resume_path'          => $resumePath,
+                'linkedin_url'         => $validated['linkedin_url'] ?? null,
+                'github_url'           => $validated['github_url'] ?? null,
+                'motivation'           => $validated['motivation'],
+                'status'               => 'Pending',
+            ]);
+
+            $elapsedMs = round((microtime(true) - $startTime) * 1000, 2);
+            Log::info('Internship application stored in DB successfully.', [
+                'application_id' => $applicationId,
+                'db_save_ms'     => $elapsedMs,
+            ]);
+
+            // ── 3. Non-blocking background email dispatch ─────────────────────
+            $this->sendEmailInBackground($application, $resumeOriginalName, $resumeSizeKb);
+
+            return response()->json([
+                'success'        => true,
+                'message'        => 'Application submitted successfully',
+                'application_id' => $applicationId,
+            ], 201);
+
+        } catch (\Throwable $e) {
+            $elapsedMs = round((microtime(true) - $startTime) * 1000, 2);
+            Log::error('Error storing internship application.', [
+                'error'      => $e->getMessage(),
+                'elapsed_ms' => $elapsedMs,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to submit application right now: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function sendEmailInBackground(InternshipApplication $application, string $resumeOriginalName, ?float $resumeSizeKb): void
+    {
+        register_shutdown_function(function () use ($application, $resumeOriginalName, $resumeSizeKb) {
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
             }
 
-            $acceptUrl = URL::temporarySignedRoute(
-                'applications.accept',
-                now()->addDays(7),
-                ['token' => $application->application_id]
-            );
-            $rejectUrl = URL::temporarySignedRoute(
-                'applications.reject',
-                now()->addDays(7),
-                ['token' => $application->application_id]
-            );
+            try {
+                $recipient = config('mail.to') ?: 'intern2expert.portal@gmail.com';
+                $appUrl = env('APP_URL') ?: config('app.url');
+                if ($appUrl && str_starts_with($appUrl, 'http')) {
+                    URL::forceRootUrl($appUrl);
+                    if (str_starts_with($appUrl, 'https://')) {
+                        URL::forceScheme('https');
+                    }
+                }
 
-            Mail::to($recipient)->send(new InternshipApplicationMail(
-                $application,
-                ['original_name' => $resumeOriginalName, 'size_kb' => $resumeSizeKb],
-                $acceptUrl,
-                $rejectUrl
-            ));
+                $acceptUrl = URL::temporarySignedRoute(
+                    'applications.accept',
+                    now()->addDays(7),
+                    ['token' => $application->application_id]
+                );
+                $rejectUrl = URL::temporarySignedRoute(
+                    'applications.reject',
+                    now()->addDays(7),
+                    ['token' => $application->application_id]
+                );
 
-            Log::info('Internship application created and HR notification email sent.', [
-                'application_id' => $application->application_id,
-                'student_name'   => $application->full_name,
-                'student_email'  => $application->email,
-                'recipient'      => $recipient,
-                'submitted_at'   => $application->created_at->toDateTimeString(),
-            ]);
-        } catch (\Throwable $exception) {
-            Log::error('Failed to send internship application notification email to HR.', [
-                'application_id' => $application->application_id,
-                'error'          => $exception->getMessage(),
-            ]);
-        }
+                Mail::to($recipient)->send(new InternshipApplicationMail(
+                    $application,
+                    ['original_name' => $resumeOriginalName, 'size_kb' => $resumeSizeKb],
+                    $acceptUrl,
+                    $rejectUrl
+                ));
 
-        return response()->json([
-            'success'        => true,
-            'message'        => 'Application submitted successfully',
-            'application_id' => $application->application_id,
-        ], 201);
+                Log::info('Background HR notification email sent successfully.', [
+                    'application_id' => $application->application_id,
+                    'recipient'      => $recipient,
+                ]);
+            } catch (\Throwable $exception) {
+                Log::error('Background HR notification email failed to send.', [
+                    'application_id' => $application->application_id,
+                    'error'          => $exception->getMessage(),
+                ]);
+            }
+        });
     }
 
     private function generateUniqueApplicationId(): string
     {
-        do {
-            $applicationId = 'INTERN-' . date('Y') . '-' . strtoupper(Str::random(4));
-        } while (InternshipApplication::where('application_id', $applicationId)->exists());
+        $year = date('Y');
+        $random = strtoupper(Str::random(4));
+        $applicationId = "INTERN-{$year}-{$random}";
+
+        if (InternshipApplication::where('application_id', $applicationId)->exists()) {
+            $applicationId = "INTERN-{$year}-" . strtoupper(Str::random(6));
+        }
 
         return $applicationId;
     }

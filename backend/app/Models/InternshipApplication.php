@@ -16,6 +16,7 @@ class InternshipApplication extends Model
         'current_year',
         'internship_domain',
         'internship_mode',
+        'duration',
         'preferred_start_date',
         'resume_path',
         'linkedin_url',

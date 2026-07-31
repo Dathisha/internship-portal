@@ -19,3 +19,13 @@ Route::get('/certificates/check/{internshipApplicationId}', [CertificateControll
 Route::get('/certificates/verify/{certificateId}', [CertificateController::class, 'verify']);
 Route::get('/certificates/generate/{certificateId}', [CertificateController::class, 'generate']);
 Route::post('/certificates/send-email', [CertificateController::class, 'sendCertificateEmail']);
+
+// Test route for immediate Monthly Internship Report dispatch
+Route::post('/reports/send-monthly-test', function () {
+    $exitCode = \Illuminate\Support\Facades\Artisan::call('reports:send-monthly', ['--test' => true]);
+    return response()->json([
+        'success'   => $exitCode === 0,
+        'message'   => $exitCode === 0 ? 'Test Monthly Internship Report PDF sent immediately to company email.' : 'Failed to send test monthly report.',
+        'exit_code' => $exitCode,
+    ]);
+});

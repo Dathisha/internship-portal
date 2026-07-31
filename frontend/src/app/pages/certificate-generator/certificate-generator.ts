@@ -70,7 +70,7 @@ export class CertificateGeneratorComponent implements OnInit {
       },
       error: (err) => {
         this.pageState = 'invalid';
-        this.errorDetail = err.error?.message || 'Invalid Application ID. Please check your Application ID and try again.';
+        this.errorDetail = err.error?.message || 'Invalid Application ID. Please enter a valid Application ID.';
         this.cdr.detectChanges();
       },
     });
@@ -87,6 +87,16 @@ export class CertificateGeneratorComponent implements OnInit {
     if (!dateStr) return '';
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  formatDateDDMMYYYY(dateStr: string): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 
   printCertificate(): void {
@@ -182,7 +192,7 @@ export class CertificateGeneratorComponent implements OnInit {
     const bodyLines = [
       `has successfully completed the Internship Program in`,
       cert.domain,
-      `with a duration of ${cert.duration} month(s)`,
+      `with a duration of ${cert.duration} ${cert.duration === 1 ? 'month' : 'months'}`,
       `from ${this.formatDate(cert.start_date)} to ${this.formatDate(cert.end_date)}`,
     ];
     let y = 105;
@@ -219,27 +229,49 @@ export class CertificateGeneratorComponent implements OnInit {
     pdf.setDrawColor(91, 44, 131);
     pdf.setLineWidth(0.6);
 
-    // Left signature
+    // Left side: Issued Date
+    const issueDateStr = this.formatDateDDMMYYYY(cert.issue_date || new Date().toISOString());
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(60, 40, 90);
+    pdf.text(issueDateStr, 55, sigY - 2, { align: 'center' });
+
     pdf.line(25, sigY, 85, sigY);
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(60, 40, 90);
-    pdf.text('Authorized Signature', 55, sigY + 5, { align: 'center' });
+    pdf.text('Issued Date', 55, sigY + 5, { align: 'center' });
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
     pdf.setTextColor(130, 110, 160);
-    pdf.text('Crescent Technosoft', 55, sigY + 9, { align: 'center' });
+    pdf.text('Intern 2 Expert', 55, sigY + 9, { align: 'center' });
 
-    // Right signature
+    // Right signature: Authorized Signature (with handwritten signature image)
+    try {
+      const sigImg = new Image();
+      sigImg.src = 'assets/authorized-signature.png';
+      await new Promise((resolve) => {
+        sigImg.onload = resolve;
+        sigImg.onerror = resolve;
+      });
+      if (sigImg.complete && sigImg.naturalWidth > 0) {
+        const imgW = 38;
+        const imgH = (sigImg.naturalHeight / sigImg.naturalWidth) * imgW;
+        pdf.addImage(sigImg, 'PNG', pw - 55 - (imgW / 2), sigY - imgH + 1.5, imgW, imgH);
+      }
+    } catch (e) {
+      console.warn('Failed to load signature image into PDF:', e);
+    }
+
     pdf.line(pw - 85, sigY, pw - 25, sigY);
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(60, 40, 90);
-    pdf.text('Director', pw - 55, sigY + 5, { align: 'center' });
+    pdf.text('Authorized Signature', pw - 55, sigY + 5, { align: 'center' });
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
     pdf.setTextColor(130, 110, 160);
-    pdf.text('Intern 2 Expert', pw - 55, sigY + 9, { align: 'center' });
+    pdf.text('Crescent Technosoft', pw - 55, sigY + 9, { align: 'center' });
 
     // ── Certificate ID & Issue Date (bottom strip) ───────────────
     pdf.setFillColor(91, 44, 131);

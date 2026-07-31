@@ -74,72 +74,83 @@ class CertificateController extends Controller
         return response()->json(['valid' => true, 'certificate' => $certificate], 200);
     }
 
-    public function generate($certificateId)
+    public function generate($certificateId, Request $request)
     {
         $cleanId = trim((string) urldecode($certificateId));
+        $durationInput = max(1, (int) $request->input('duration', $request->query('duration', 1)));
 
         \Log::info('Certificate generation request received for Application ID', [
             'raw_input'     => $certificateId,
             'cleaned_input' => $cleanId,
+            'duration'      => $durationInput,
         ]);
 
         // Case-insensitive exact search on internship_applications table application_id column
-        $application = InternshipApplication::select('id', 'application_id', 'full_name', 'college_name', 'internship_domain', 'preferred_start_date', 'created_at')
+        $application = InternshipApplication::select('id', 'application_id', 'full_name', 'college_name', 'internship_domain', 'duration', 'preferred_start_date', 'created_at')
             ->whereRaw('LOWER(TRIM(application_id)) = ?', [mb_strtolower($cleanId)])
             ->first();
 
         if (!$application) {
             // Direct equality fallback search
-            $application = InternshipApplication::select('id', 'application_id', 'full_name', 'college_name', 'internship_domain', 'preferred_start_date', 'created_at')
+            $application = InternshipApplication::select('id', 'application_id', 'full_name', 'college_name', 'internship_domain', 'duration', 'preferred_start_date', 'created_at')
                 ->where('application_id', $cleanId)
                 ->first();
         }
 
         if (!$application && is_numeric($cleanId)) {
-            $application = InternshipApplication::select('id', 'application_id', 'full_name', 'college_name', 'internship_domain', 'preferred_start_date', 'created_at')
+            $application = InternshipApplication::select('id', 'application_id', 'full_name', 'college_name', 'internship_domain', 'duration', 'preferred_start_date', 'created_at')
                 ->find((int) $cleanId);
         }
 
         if (!$application) {
-            // Search certificates table by certificate_id case-insensitively as secondary fallback
-            $certificate = Certificate::with('internshipApplication:id,college_name')
-                ->whereRaw('LOWER(TRIM(certificate_id)) = ?', [mb_strtolower($cleanId)])
-                ->first();
+            try {
+                // Search certificates table by certificate_id case-insensitively as secondary fallback
+                $certificate = Certificate::with('internshipApplication:id,college_name')
+                    ->whereRaw('LOWER(TRIM(certificate_id)) = ?', [mb_strtolower($cleanId)])
+                    ->first();
 
-            if ($certificate) {
-                \Log::info('Found certificate record in certificates table', ['certificate_id' => $certificate->certificate_id]);
+                if ($certificate) {
+                    \Log::info('Found certificate record in certificates table', ['certificate_id' => $certificate->certificate_id]);
+                    $certDuration = max(1, (int) ($certificate->duration ?? 1));
+                    $certEndDate = (string) \Carbon\Carbon::parse($certificate->start_date)->addMonths($certDuration)->toDateString();
 
-                return response()->json([
-                    'status'      => 'approved',
-                    'certificate' => [
-                        'certificate_id' => $certificate->certificate_id,
-                        'candidate_name' => $certificate->candidate_name,
-                        'college_name'   => $certificate->internshipApplication->college_name ?? '',
-                        'domain'         => $certificate->domain,
-                        'duration'       => (int) $certificate->duration,
-                        'start_date'     => (string) $certificate->start_date,
-                        'end_date'       => (string) $certificate->end_date,
-                        'issue_date'     => (string) $certificate->issue_date,
-                        'status'         => 'approved',
-                    ],
-                ], 200);
+                    return response()->json([
+                        'status'      => 'approved',
+                        'certificate' => [
+                            'certificate_id' => $certificate->certificate_id,
+                            'candidate_name' => $certificate->candidate_name,
+                            'college_name'   => $certificate->internshipApplication->college_name ?? '',
+                            'domain'         => $certificate->domain,
+                            'duration'       => $certDuration,
+                            'start_date'     => (string) $certificate->start_date,
+                            'end_date'       => $certEndDate,
+                            'issue_date'     => (string) $certificate->issue_date,
+                            'status'         => 'approved',
+                        ],
+                    ], 200);
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('Certificates table fallback query skipped: ' . $e->getMessage());
             }
 
             \Log::warning('Application ID not found in database', ['searched_id' => $cleanId]);
 
             return response()->json([
                 'status'  => 'invalid',
-                'message' => 'Invalid Application ID. Please check your Application ID and try again.',
+                'message' => 'Invalid Application ID. Please enter a valid Application ID.',
             ], 404);
         }
+
+        $storedDuration = max(1, (int) ($application->duration ?? 1));
 
         \Log::info('Successfully retrieved student details for Application ID', [
             'application_id' => $application->application_id,
             'full_name'      => $application->full_name,
+            'duration'       => $storedDuration,
         ]);
 
-        $startDate = (string) $application->preferred_start_date;
-        $endDate   = (string) \Carbon\Carbon::parse($startDate)->addMonth()->toDateString();
+        $startDate = (string) ($application->preferred_start_date ?? now()->toDateString());
+        $endDate   = (string) \Carbon\Carbon::parse($startDate)->addMonths($storedDuration)->toDateString();
         $issueDate = (string) ($application->created_at ? $application->created_at->toDateString() : now()->toDateString());
 
         return response()->json([
@@ -149,7 +160,7 @@ class CertificateController extends Controller
                 'candidate_name' => $application->full_name,
                 'college_name'   => $application->college_name ?? '',
                 'domain'         => $application->internship_domain ?? 'Internship',
-                'duration'       => 1,
+                'duration'       => $storedDuration,
                 'start_date'     => $startDate,
                 'end_date'       => $endDate,
                 'issue_date'     => $issueDate,

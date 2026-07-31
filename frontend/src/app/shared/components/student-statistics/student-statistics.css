@@ -58,9 +58,11 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   align-items: stretch;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 .stat-card {
@@ -110,6 +112,7 @@
   font-weight: 800;
   letter-spacing: -1px;
   line-height: 1.1;
+  color: #6C4CFD;
   background: linear-gradient(135deg, #6C4CFD 0%, #7C3AED 50%, #4C1D95 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

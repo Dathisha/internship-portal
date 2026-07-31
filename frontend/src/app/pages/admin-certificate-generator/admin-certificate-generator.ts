@@ -61,8 +61,12 @@ export class AdminCertificateGeneratorComponent implements OnInit {
   ) {
     this.certificateForm = this.fb.group({
       candidateId: ['', [Validators.required]],
-      duration: ['', [Validators.required, Validators.pattern(/^\d+/)]],
+      duration: [1, [Validators.required, Validators.min(1), Validators.pattern(/^[1-9]\d*$/)]],
       endDate: ['', [Validators.required]],
+    });
+
+    this.certificateForm.get('duration')?.valueChanges.subscribe(() => {
+      this.autoCalculateEndDate();
     });
   }
 
@@ -92,7 +96,19 @@ export class AdminCertificateGeneratorComponent implements OnInit {
       this.certificateForm.patchValue({
         candidateId: candidateId,
       });
+      this.autoCalculateEndDate();
     }
+  }
+
+  autoCalculateEndDate(): void {
+    if (!this.selectedCandidate || !this.selectedCandidate.preferred_start_date) return;
+    const duration = parseInt(this.certificateForm.get('duration')?.value || '1', 10);
+    if (isNaN(duration) || duration < 1) return;
+
+    const startDate = new Date(this.selectedCandidate.preferred_start_date);
+    startDate.setMonth(startDate.getMonth() + duration);
+    const endDateStr = startDate.toISOString().split('T')[0];
+    this.certificateForm.patchValue({ endDate: endDateStr }, { emitEvent: false });
   }
 
   generatePreview(): void {
@@ -105,6 +121,8 @@ export class AdminCertificateGeneratorComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    this.autoCalculateEndDate();
+
     const formData = this.certificateForm.value;
     const certificateData: Certificate = {
       candidateName: this.selectedCandidate.full_name,
@@ -115,7 +133,7 @@ export class AdminCertificateGeneratorComponent implements OnInit {
       issueDate: new Date().toISOString().split('T')[0],
       certificateId: this.generateCertificateId(),
       companyName: 'Crescent Technosoft',
-      companyLogo: '/assets/logo.png',
+      companyLogo: 'assets/logo.png',
     };
 
     this.currentCertificate = certificateData;
@@ -223,14 +241,36 @@ export class AdminCertificateGeneratorComponent implements OnInit {
 
       // Digital signature area
       yPosition = pageHeight - 35;
+      try {
+        const sigImg = new Image();
+        sigImg.src = 'assets/authorized-signature.png';
+        await new Promise((resolve) => {
+          sigImg.onload = resolve;
+          sigImg.onerror = resolve;
+        });
+        if (sigImg.complete && sigImg.naturalWidth > 0) {
+          const imgW = 38;
+          const imgH = (sigImg.naturalHeight / sigImg.naturalWidth) * imgW;
+          pdf.addImage(sigImg, 'PNG', pageWidth - 45 - (imgW / 2), yPosition - imgH + 1.5, imgW, imgH);
+        }
+      } catch (e) {
+        console.warn('Failed to load signature in admin preview:', e);
+      }
+
+      const issueDateStr = this.formatDateDDMMYYYY(certificate.issueDate || new Date().toISOString());
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(issueDateStr, 45, yPosition - 2, { align: 'center' });
+
       pdf.setLineWidth(0.5);
       pdf.setDrawColor(150, 150, 150);
       pdf.line(20, yPosition, 70, yPosition);
       pdf.setFontSize(9);
-      pdf.text('Authorized Signature', 25, yPosition + 5);
+      pdf.text('Issued Date', 45, yPosition + 5, { align: 'center' });
 
       pdf.line(pageWidth - 70, yPosition, pageWidth - 20, yPosition);
-      pdf.text('Director', pageWidth - 60, yPosition + 5);
+      pdf.text('Authorized Signature', pageWidth - 65, yPosition + 5);
 
       // Convert to image for preview
       const dataUrl = pdf.output('dataurlstring');
@@ -338,15 +378,37 @@ export class AdminCertificateGeneratorComponent implements OnInit {
       const certId = this.currentCertificate.certificateId;
       const candidateName = this.currentCertificate.candidateName;
 
-      const finalizePdf = (pdfDoc: typeof pdf) => {
+      const finalizePdf = async (pdfDoc: typeof pdf) => {
         const sigY = pageHeight - 35;
+        try {
+          const sigImg = new Image();
+          sigImg.src = 'assets/authorized-signature.png';
+          await new Promise((resolve) => {
+            sigImg.onload = resolve;
+            sigImg.onerror = resolve;
+          });
+          if (sigImg.complete && sigImg.naturalWidth > 0) {
+            const imgW = 38;
+            const imgH = (sigImg.naturalHeight / sigImg.naturalWidth) * imgW;
+            pdfDoc.addImage(sigImg, 'PNG', pageWidth - 45 - (imgW / 2), sigY - imgH + 1.5, imgW, imgH);
+          }
+        } catch (e) {
+          console.warn('Failed to load signature in admin download:', e);
+        }
+
+        const issueDateStr = this.formatDateDDMMYYYY(this.currentCertificate?.issueDate || new Date().toISOString());
+        pdfDoc.setFontSize(9);
+        pdfDoc.setFont('helvetica', 'bold');
+        pdfDoc.setTextColor(80, 80, 80);
+        pdfDoc.text(issueDateStr, 45, sigY - 2, { align: 'center' });
+
         pdfDoc.setLineWidth(0.5);
         pdfDoc.setDrawColor(150, 150, 150);
         pdfDoc.line(20, sigY, 70, sigY);
         pdfDoc.setFontSize(9);
-        pdfDoc.text('Authorized Signature', 25, sigY + 5);
+        pdfDoc.text('Issued Date', 45, sigY + 5, { align: 'center' });
         pdfDoc.line(pageWidth - 70, sigY, pageWidth - 20, sigY);
-        pdfDoc.text('Director', pageWidth - 60, sigY + 5);
+        pdfDoc.text('Authorized Signature', pageWidth - 65, sigY + 5);
         pdfDoc.save(`${candidateName}-Certificate-${certId}.pdf`);
       };
 
@@ -450,6 +512,16 @@ export class AdminCertificateGeneratorComponent implements OnInit {
     const date = new Date(dateString);
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
+  }
+
+  private formatDateDDMMYYYY(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 
   private resetForm(): void {

@@ -28,11 +28,21 @@
 
 .hero-slider {
   z-index: -3;
+  width: 100%;
+  height: 100%;
 }
 
 .hero-slide {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.1s ease-in-out;
+}
+
+.hero-slide.swiper-slide-active {
+  opacity: 1;
 }
 
 .hero-slide img {

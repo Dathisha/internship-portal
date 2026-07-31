@@ -22,6 +22,7 @@ return new class extends Migration
         $table->string('current_year');
         $table->string('internship_domain');
         $table->string('internship_mode');
+        $table->integer('duration')->default(1);
         $table->date('preferred_start_date');
         $table->string('resume_path');
         $table->string('linkedin_url')->nullable();

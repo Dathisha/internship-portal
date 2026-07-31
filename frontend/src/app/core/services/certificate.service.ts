@@ -26,9 +26,10 @@ export class CertificateService {
     return this.http.get<any>(`${this.apiUrl}/verify/${certificateId}`);
   }
 
-  generateCertificate(certificateId: string): Observable<any> {
+  generateCertificate(certificateId: string, duration?: number): Observable<any> {
     const cleanId = encodeURIComponent(certificateId.trim());
-    return this.http.get<any>(`${this.apiUrl}/generate/${cleanId}`);
+    const durationParam = duration && duration > 0 ? `?duration=${duration}` : '';
+    return this.http.get<any>(`${this.apiUrl}/generate/${cleanId}${durationParam}`);
   }
 
   sendCertificateEmail(certificateId: string): Observable<any> {

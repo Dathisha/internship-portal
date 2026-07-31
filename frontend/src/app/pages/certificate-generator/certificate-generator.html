@@ -95,7 +95,7 @@
         </svg>
       </div>
       <h2 class="state-title">Invalid Application ID</h2>
-      <p class="state-sub">Invalid Application ID. Please check your Application ID and try again.</p>
+      <p class="state-sub">{{ errorDetail || 'Invalid Application ID. Please enter a valid Application ID.' }}</p>
       <button class="btn-retry" (click)="reset()">Try Another ID</button>
     </div>
 
@@ -151,7 +151,7 @@
       <div class="cert-sheet" id="certificate-print-area">
         <!-- Top purple bar -->
         <div class="cert-topbar">
-          <img src="/assets/logo.png" alt="Crescent Technosoft" class="cert-logo" />
+          <img src="assets/logo.png" alt="Crescent Technosoft" class="cert-logo" />
           <span class="cert-topbar-name">CRESCENT TECHNOSOFT</span>
         </div>
 
@@ -187,7 +187,7 @@
               <p class="cert-body-text">
                 has successfully completed the Internship Program in<br />
                 <strong class="cert-domain">{{ certificate.domain }}</strong><br />
-                with a duration of <strong>{{ certificate.duration }} month(s)</strong><br />
+                with a duration of <strong>{{ certificate.duration }} {{ certificate.duration === 1 ? 'month' : 'months' }}</strong><br />
                 from <strong>{{ formatDate(certificate.start_date) }}</strong> to <strong>{{
                   formatDate(certificate.end_date) }}</strong>
               </p>
@@ -199,9 +199,10 @@
               <!-- Signatures -->
               <div class="cert-sigs">
                 <div class="cert-sig">
+                  <span class="sig-date-val">{{ formatDateDDMMYYYY(certificate.issue_date) }}</span>
                   <div class="sig-line"></div>
-                  <p class="sig-name">Authorized Signature</p>
-                  <p class="sig-title">Crescent Technosoft</p>
+                  <p class="sig-name">Issued Date</p>
+                  <p class="sig-title">Intern 2 Expert</p>
                 </div>
                 <div class="cert-seal">
                   <div class="seal-ring">
@@ -209,9 +210,10 @@
                   </div>
                 </div>
                 <div class="cert-sig">
+                  <img src="assets/authorized-signature.png" alt="Authorized Signature" class="sig-img" />
                   <div class="sig-line"></div>
-                  <p class="sig-name">Director</p>
-                  <p class="sig-title">Intern 2 Expert</p>
+                  <p class="sig-name">Authorized Signature</p>
+                  <p class="sig-title">Crescent Technosoft</p>
                 </div>
               </div>
             </div>
